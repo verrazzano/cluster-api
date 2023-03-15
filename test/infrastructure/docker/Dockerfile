@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1.4
-
 # Copyright 2019 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +28,15 @@ FROM ${builder_image} as builder
 ARG goproxy=https://proxy.golang.org
 ENV GOPROXY=$goproxy
 
+RUN yum update -y \
+    && yum-config-manager --save --setopt=ol7_ociyum_config.skip_if_unavailable=true \
+    && yum install -y oracle-golang-release-el7 \
+    && yum-config-manager --disable ol7_developer_golang\* \
+    && yum-config-manager --enable ol7_developer_golang119 \
+    && yum -y install golang \
+    && yum clean all \
+    && go version
+
 # Gets additional CAPD dependencies
 WORKDIR /tmp
 
@@ -49,8 +56,7 @@ COPY test/go.sum go.sum
 
 # Cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
-RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod download
+RUN go mod download
 
 # This needs to build with the entire Cluster API context
 WORKDIR /workspace
@@ -64,17 +70,18 @@ WORKDIR /workspace/test/infrastructure/docker
 ARG ARCH
 
 # Build the CAPD manager using the compiler cache folder
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg/mod \
-    CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -trimpath -a -o /workspace/manager main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -trimpath -a -o /workspace/manager main.go
 
 # NOTE: CAPD can't use non-root because docker requires access to the docker socket
 
 # Ignore Hadolint rule "Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag."
 # https://github.com/hadolint/hadolint/wiki/DL3007
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/static:latest-${ARCH}
-
+FROM ghcr.io/oracle/oraclelinux:7-slim
+RUN yum update -y \
+    && yum install -y openssl \
+    && yum clean all \
+    && rm -rf /var/cache/yum
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl

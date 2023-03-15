@@ -159,3 +159,5 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 )
+
+replace sigs.k8s.io/cluster-api => github.com/verrazzano/cluster-api v1.3.5
