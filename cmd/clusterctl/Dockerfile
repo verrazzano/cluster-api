@@ -53,6 +53,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} \
 # Copy the sources
 COPY ./ ./
 
+RUN go build .
+
 # Cache the go build into the Go’s compiler cache folder so we take benefits of compiler caching across docker build calls
 RUN go build ./cmd/clusterctl
 
