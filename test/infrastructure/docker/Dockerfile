@@ -28,14 +28,14 @@ FROM ${builder_image} as builder
 ARG goproxy=https://proxy.golang.org
 ENV GOPROXY=$goproxy
 
-RUN yum update -y \
-    && yum-config-manager --save --setopt=ol7_ociyum_config.skip_if_unavailable=true \
-    && yum install -y oracle-golang-release-el7 \
-    && yum-config-manager --disable ol7_developer_golang\* \
-    && yum-config-manager --enable ol7_developer_golang119 \
-    && yum -y install golang \
-    && yum clean all \
-    && go version
+ENV GOURL=https://yum.oracle.com/repo/OracleLinux/OL8/developer/x86_64/getPackage
+
+RUN dnf install openssl-devel delve gcc -y && \
+    rpm -ivh ${GOURL}/go-toolset-1.19.4-1.module+el8.7.0+20922+47ac84ba.x86_64.rpm \
+    ${GOURL}/golang-1.19.4-2.0.1.module+el8.7.0+20922+47ac84ba.x86_64.rpm \
+    ${GOURL}/golang-src-1.19.4-2.0.1.module+el8.7.0+20922+47ac84ba.noarch.rpm \
+    ${GOURL}/golang-bin-1.19.4-2.0.1.module+el8.7.0+20922+47ac84ba.x86_64.rpm && \
+    go version
 
 # Gets additional CAPD dependencies
 WORKDIR /tmp
@@ -77,13 +77,12 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -trimpath -a -o /workspace/
 # Ignore Hadolint rule "Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag."
 # https://github.com/hadolint/hadolint/wiki/DL3007
 # hadolint ignore=DL3007
-FROM ghcr.io/oracle/oraclelinux:7-slim
-RUN yum update -y \
-    && yum install -y openssl \
-    && yum clean all \
-    && rm -rf /var/cache/yum
+FROM ghcr.io/oracle/oraclelinux:8-slim
+RUN microdnf update \
+    && microdnf clean all
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl
-
+RUN mkdir -p /license
+COPY ../../../LICENSE ../../../README.md ../../../THIRD_PARTY_LICENSES.txt /license/
 ENTRYPOINT ["/manager"]
