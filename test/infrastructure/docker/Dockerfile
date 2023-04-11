@@ -83,6 +83,4 @@ RUN microdnf update \
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl
-RUN mkdir -p /license
-COPY ../../../LICENSE ../../../README.md ../../../THIRD_PARTY_LICENSES.txt /license/
 ENTRYPOINT ["/manager"]

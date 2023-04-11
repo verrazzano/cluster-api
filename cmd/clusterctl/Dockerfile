@@ -73,7 +73,7 @@ RUN microdnf update \
 WORKDIR /
 COPY --from=builder /workspace/clusterctl .
 RUN mkdir -p /license
-COPY ../LICENSE ../README.md ../THIRD_PARTY_LICENSES.txt /license/
+COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 # Use uid of nonroot user (65532) because kubernetes expects numeric user when applying pod security policies
 USER 65532
 ENTRYPOINT ["/clusterctl"]
