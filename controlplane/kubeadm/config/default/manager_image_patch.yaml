@@ -7,5 +7,5 @@ spec:
   template:
     spec:
       containers:
-        - image: ghcr.io/verrazzano/cluster-api-kubeadm-control-plane-controller:dev
+        - image: ghcr.io/verrazzano/kubeadm-control-plane-controller:dev
           name: manager
