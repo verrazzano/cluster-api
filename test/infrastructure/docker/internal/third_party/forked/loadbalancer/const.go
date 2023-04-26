@@ -17,13 +17,13 @@ limitations under the License.
 package loadbalancer
 
 // Image defines the loadbalancer image name
-const Image = "haproxy"
+const Image = "kind-haproxy"
 
 // DefaultImageRepository defines the loadbalancer image repository
-const DefaultImageRepository = "kindest"
+const DefaultImageRepository = "ghcr.io/verrazzano"
 
 // DefaultImageTag defines the loadbalancer image tag
-const DefaultImageTag = "v20210715-a6da3463"
+const DefaultImageTag = "v0.17.0-20230423010806-1488a60f"
 
 // ConfigPath defines the path to the config file in the image
 const ConfigPath = "/usr/local/etc/haproxy/haproxy.cfg"
