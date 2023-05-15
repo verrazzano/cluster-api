@@ -23,8 +23,7 @@ SHELL:=/usr/bin/env bash
 #
 # Go.
 #
-GO_VERSION ?= 1.19.6
-GO_CONTAINER_IMAGE ?= docker.io/library/golang:$(GO_VERSION)
+GO_CONTAINER_IMAGE ?= ghcr.io/oracle/oraclelinux:8
 
 # Use GOPROXY environment variable if set
 GOPROXY := $(shell go env GOPROXY)
@@ -68,7 +67,7 @@ OBSERVABILITY_DIR := hack/observability
 export PATH := $(abspath $(TOOLS_BIN_DIR)):$(PATH)
 
 # Set --output-base for conversion-gen if we are not within GOPATH
-ifneq ($(abspath $(ROOT_DIR)),$(shell go env GOPATH)/src/sigs.k8s.io/cluster-api)
+ifneq ($(abspath $(ROOT_DIR)),$(shell go env GOPATH)/src/github.com/verrazzano/cluster-api)
 	CONVERSION_GEN_OUTPUT_BASE := --output-base=$(ROOT_DIR)
 	CONVERSION_GEN_OUTPUT_BASE_CAPD := --output-base=$(ROOT_DIR)/$(CAPD_DIR)
 else
@@ -178,7 +177,7 @@ GOLANGCI_LINT_BIN := golangci-lint
 GOLANGCI_LINT := $(abspath $(TOOLS_BIN_DIR)/$(GOLANGCI_LINT_BIN))
 
 # Define Docker related variables. Releases should modify and double check these vars.
-REGISTRY ?= gcr.io/$(shell gcloud config get-value project)
+REGISTRY ?= ${DOCKER_REPO}
 PROD_REGISTRY ?= registry.k8s.io/cluster-api
 
 STAGING_REGISTRY ?= gcr.io/k8s-staging-cluster-api
@@ -216,7 +215,7 @@ CAPI_KIND_CLUSTER_NAME ?= capi-test
 
 TAG ?= dev
 ARCH ?= $(shell go env GOARCH)
-ALL_ARCH = amd64 arm arm64 ppc64le s390x
+ALL_ARCH = amd64
 
 # Allow overriding the imagePullPolicy
 PULL_POLICY ?= Always
@@ -639,15 +638,15 @@ managers: $(addprefix manager-,$(ALL_MANAGERS)) ## Run all manager-* targets
 
 .PHONY: manager-core
 manager-core: ## Build the core manager binary into the ./bin folder
-	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/manager sigs.k8s.io/cluster-api
+	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/manager github.com/verrazzano/cluster-api
 
 .PHONY: manager-kubeadm-bootstrap
 manager-kubeadm-bootstrap: ## Build the kubeadm bootstrap manager binary into the ./bin folder
-	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/kubeadm-bootstrap-manager sigs.k8s.io/cluster-api/bootstrap/kubeadm
+	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/kubeadm-bootstrap-manager github.com/verrazzano/cluster-api/bootstrap/kubeadm
 
 .PHONY: manager-kubeadm-control-plane
 manager-kubeadm-control-plane: ## Build the kubeadm control plane manager binary into the ./bin folder
-	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/kubeadm-control-plane-manager sigs.k8s.io/cluster-api/controlplane/kubeadm
+	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/kubeadm-control-plane-manager github.com/verrazzano/cluster-api/controlplane/kubeadm
 
 .PHONY: manager-docker-infrastructure
 manager-docker-infrastructure: ## Build the docker infrastructure manager binary into the ./bin folder
@@ -655,9 +654,8 @@ manager-docker-infrastructure: ## Build the docker infrastructure manager binary
 
 .PHONY: docker-pull-prerequisites
 docker-pull-prerequisites:
-	docker pull docker.io/docker/dockerfile:1.4
-	docker pull $(GO_CONTAINER_IMAGE)
-	docker pull gcr.io/distroless/static:latest
+	docker pull ghcr.io/oracle/oraclelinux:8
+    docker pull ghcr.io/oracle/oraclelinux:8-slim
 
 .PHONY: docker-build-all
 docker-build-all: $(addprefix docker-build-,$(ALL_ARCH)) ## Build docker images for all architectures
@@ -681,7 +679,7 @@ docker-build-e2e: ## Run docker-build-* targets for all the images with settings
 
 .PHONY: docker-build-core
 docker-build-core: ## Build the docker image for core controller manager
-	DOCKER_BUILDKIT=1 docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg ldflags="$(LDFLAGS)" . -t $(CONTROLLER_IMG)-$(ARCH):$(TAG)
+	docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg ldflags="$(LDFLAGS)" . -t $(CONTROLLER_IMG):$(ARCH)-${DOCKER_IMAGE_TAG}
 	$(MAKE) set-manifest-image MANIFEST_IMG=$(CONTROLLER_IMG)-$(ARCH) MANIFEST_TAG=$(TAG) TARGET_RESOURCE="./config/default/manager_image_patch.yaml"
 	$(MAKE) set-manifest-pull-policy TARGET_RESOURCE="./config/default/manager_pull_policy.yaml"
 
@@ -693,19 +691,19 @@ docker-build-kubeadm-bootstrap: ## Build the docker image for kubeadm bootstrap 
 
 .PHONY: docker-build-kubeadm-control-plane
 docker-build-kubeadm-control-plane: ## Build the docker image for kubeadm control plane controller manager
-	DOCKER_BUILDKIT=1 docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg package=./controlplane/kubeadm --build-arg ldflags="$(LDFLAGS)" . -t $(KUBEADM_CONTROL_PLANE_CONTROLLER_IMG)-$(ARCH):$(TAG)
+	docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg package=./controlplane/kubeadm --build-arg ldflags="$(LDFLAGS)" . -t $(KUBEADM_CONTROL_PLANE_CONTROLLER_IMG):$(ARCH)-${DOCKER_IMAGE_TAG}
 	$(MAKE) set-manifest-image MANIFEST_IMG=$(KUBEADM_CONTROL_PLANE_CONTROLLER_IMG)-$(ARCH) MANIFEST_TAG=$(TAG) TARGET_RESOURCE="./controlplane/kubeadm/config/default/manager_image_patch.yaml"
 	$(MAKE) set-manifest-pull-policy TARGET_RESOURCE="./controlplane/kubeadm/config/default/manager_pull_policy.yaml"
 
 .PHONY: docker-build-docker-infrastructure
 docker-build-docker-infrastructure: ## Build the docker image for docker infrastructure controller manager
-	cd $(CAPD_DIR); DOCKER_BUILDKIT=1 docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg ldflags="$(LDFLAGS)" ../../.. -t $(CAPD_CONTROLLER_IMG)-$(ARCH):$(TAG) --file Dockerfile
+	cd $(CAPD_DIR); docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg ldflags="$(LDFLAGS)" ../../.. -t $(CAPD_CONTROLLER_IMG):$(ARCH)-${DOCKER_IMAGE_TAG} --file Dockerfile
 	$(MAKE) set-manifest-image MANIFEST_IMG=$(CAPD_CONTROLLER_IMG)-$(ARCH) MANIFEST_TAG=$(TAG) TARGET_RESOURCE="$(CAPD_DIR)/config/default/manager_image_patch.yaml"
 	$(MAKE) set-manifest-pull-policy TARGET_RESOURCE="$(CAPD_DIR)/config/default/manager_pull_policy.yaml"
 
 .PHONY: docker-build-clusterctl
 docker-build-clusterctl: ## Build the docker image for clusterctl
-	DOCKER_BUILDKIT=1 docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg package=./cmd/clusterctl --build-arg ldflags="$(LDFLAGS)" -f ./cmd/clusterctl/Dockerfile . -t $(CLUSTERCTL_IMG)-$(ARCH):$(TAG)
+	docker build --build-arg builder_image=$(GO_CONTAINER_IMAGE) --build-arg goproxy=$(GOPROXY) --build-arg ARCH=$(ARCH) --build-arg package=./cmd/clusterctl --build-arg ldflags="$(LDFLAGS)" -f ./cmd/clusterctl/Dockerfile . -t $(CLUSTERCTL_IMG):$(ARCH)-${DOCKER_IMAGE_TAG}
 
 .PHONY: docker-build-test-extension
 docker-build-test-extension: ## Build the docker image for core controller manager
@@ -1191,7 +1189,7 @@ $(CONVERSION_GEN): # Build conversion-gen from tools folder.
 	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) $(CONVERSION_GEN_PKG) $(CONVERSION_GEN_BIN) $(CONVERSION_GEN_VER)
 
 $(CONVERSION_VERIFIER): $(TOOLS_DIR)/go.mod # Build conversion-verifier from tools folder.
-	cd $(TOOLS_DIR); go build -tags=tools -o $(BIN_DIR)/$(CONVERSION_VERIFIER_BIN) sigs.k8s.io/cluster-api/hack/tools/conversion-verifier
+	cd $(TOOLS_DIR); go build -tags=tools -o $(BIN_DIR)/$(CONVERSION_VERIFIER_BIN) github.com/verrazzano/cluster-api/hack/tools/conversion-verifier
 
 .PHONY: $(OPENAPI_GEN)
 $(OPENAPI_GEN): # Build openapi-gen from tools folder.
@@ -1200,7 +1198,7 @@ $(OPENAPI_GEN): # Build openapi-gen from tools folder.
 ## We are forcing a rebuilt of runtime-openapi-gen via PHONY so that we're always using an up-to-date version.
 .PHONY: $(RUNTIME_OPENAPI_GEN)
 $(RUNTIME_OPENAPI_GEN): $(TOOLS_DIR)/go.mod # Build openapi-gen from tools folder.
-	cd $(TOOLS_DIR); go build -tags=tools -o $(BIN_DIR)/$(RUNTIME_OPENAPI_GEN_BIN) sigs.k8s.io/cluster-api/hack/tools/runtime-openapi-gen
+	cd $(TOOLS_DIR); go build -tags=tools -o $(BIN_DIR)/$(RUNTIME_OPENAPI_GEN_BIN) github.com/verrazzano/cluster-api/hack/tools/runtime-openapi-gen
 
 $(GOTESTSUM): # Build gotestsum from tools folder.
 	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) $(GOTESTSUM_PKG) $(GOTESTSUM_BIN) $(GOTESTSUM_VER)
@@ -1218,7 +1216,7 @@ $(SETUP_ENVTEST): # Build setup-envtest from tools folder.
 	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) $(SETUP_ENVTEST_PKG) $(SETUP_ENVTEST_BIN) $(SETUP_ENVTEST_VER)
 
 $(TILT_PREPARE): $(TOOLS_DIR)/go.mod # Build tilt-prepare from tools folder.
-	cd $(TOOLS_DIR); go build -tags=tools -o $(BIN_DIR)/tilt-prepare sigs.k8s.io/cluster-api/hack/tools/tilt-prepare
+	cd $(TOOLS_DIR); go build -tags=tools -o $(BIN_DIR)/tilt-prepare github.com/verrazzano/cluster-api/hack/tools/tilt-prepare
 
 $(KPROMO):
 	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) $(KPROMO_PKG) $(KPROMO_BIN) ${KPROMO_VER}
