@@ -1296,6 +1296,7 @@ cluster-api-builds: ## Build cluster API images and artifacts
 	$(MAKE) docker-build
 	$(MAKE) docker-push
 	$(MAKE) release-manifests
+	make clusterctl
 	mkdir -p linux_$(ARCH)
 	cp bin/clusterctl linux_$(ARCH)
 	cp out/* linux_$(ARCH)
