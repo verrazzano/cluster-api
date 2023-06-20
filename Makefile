@@ -1285,11 +1285,13 @@ go-version: ## Print the go version we use to compile our binaries and images
 
 
 ## --------------------------------------
-## Build Cluster API Artifacts
+## Build Cluster API Images and Artifacts
 ## --------------------------------------
-##@ Build Cluster API Artifacts:
+
+##@ cluster-api:
+
 .PHONY: cluster-api-builds
-cluster-api-builds:
+cluster-api-builds: ## Build cluster API images and artifacts
 	rm -rf out bin
 	$(MAKE) docker-build
 	$(MAKE) docker-push
