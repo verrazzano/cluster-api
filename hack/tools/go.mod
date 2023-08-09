@@ -1,4 +1,5 @@
-module sigs.k8s.io/cluster-api/hack/tools
+// This file from the cluster-api community (https://sigs.k8s.io/cluster-api/hack/tools) has been modified by Oracle.
+module github.com/verrazzano/cluster-api/hack/tools
 
 go 1.20
 
