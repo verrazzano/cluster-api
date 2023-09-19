@@ -1,3 +1,4 @@
+=== Public License Template ===
 
 ------------------------------ Top-Level License -------------------------------
 SPDX:Apache-2.0
@@ -290,7 +291,7 @@ This product includes software developed at CoreOS, Inc.
 github.com/davecgh/go-spew
 
 == License Type
-
+=== ISC-c06795ed
 ISC License
 
 Copyright (c) 2012-2016 Dave Collins <dave@davec.name>
@@ -341,6 +342,7 @@ Copyright 2009-2012 Canonical Ltd.
 Copyright 2009-2018 Canonical Ltd.
 Copyright 2012-2017 Docker, Inc.
 Copyright 2013-2018 Docker, Inc.
+copyright 2015 Docker, inc. Code released under the Apache 2.0 license. Docs released under Creative commons.
 
 == Notices
 Docker
@@ -421,7 +423,7 @@ Copyright 2021 Ernest Micklei. All rights reserved.
 github.com/evanphx/json-patch
 
 == License Type
-
+=== BSD-3-Clause-96ae735c
 Copyright (c) 2014, Evan Phoenix
 All rights reserved.
 
@@ -459,7 +461,7 @@ Copyright (c) 2014, Evan Phoenix
 github.com/evanphx/json-patch/v5
 
 == License Type
-
+=== BSD-3-Clause-96ae735c
 Copyright (c) 2014, Evan Phoenix
 All rights reserved.
 
@@ -734,8 +736,8 @@ Copyright 2014 Google Inc.
 github.com/google/cel-go
 
 == License Type
-
-
+=== Apache-2.0-9e40c772
+=== BSD-3-Clause--modified-by-Google
 
                                  Apache License
                            Version 2.0, January 2004
@@ -939,8 +941,10 @@ github.com/google/cel-go
    See the License for the specific language governing permissions and
    limitations under the License.
 
-========================================================================
-========================================================================
+===========================================================================
+The common/types/pb/equal.go modification of proto.Equal logic
+===========================================================================
+Copyright (c) 2018 The Go Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -1204,7 +1208,7 @@ Copyright 2012 The Go Authors. All rights reserved.
 github.com/magiconair/properties
 
 == License Type
-
+=== BSD-2-Clause-714beb73
 Copyright (c) 2013-2020, Frank Schroeder
 
 All rights reserved.
@@ -1417,7 +1421,7 @@ Copyright (c) [2015] [go-gitignore]
 github.com/munnerz/goautoneg
 
 == License Type
-
+=== BSD-3-Clause-0c241922
 Copyright (c) 2011, Open Knowledge Foundation Ltd.
 All rights reserved.
 
@@ -1527,8 +1531,8 @@ Copyright 2017 The Linux Foundation
 github.com/pelletier/go-toml
 
 == License Type
-
-
+=== MIT-e49b63d8
+=== Apache-2.0
 The bulk of github.com/pelletier/go-toml is distributed under the MIT license
 (see below), with the exception of localtime.go and localtime.test.go.
 Those two files have been copied over from Google's civil library at revision
@@ -1985,18 +1989,6 @@ Copyright 2009 The Go Authors. All rights reserved.
 --------------------------------- (separator) ----------------------------------
 
 == Dependency
-github.com/sirupsen/logrus
-
-== License Type
-SPDX:MIT
-
-== Copyright
-Copyright (c) 2012 Miki Tebeka <miki.tebeka@gmail.com>.
-Copyright (c) 2014 Simon Eskildsen
-
---------------------------------- (separator) ----------------------------------
-
-== Dependency
 github.com/spf13/afero
 
 == License Type
@@ -2113,6 +2105,24 @@ SPDX:MIT
 
 == Copyright
 Copyright (c) 2018 Aliaksandr Valialkin
+
+--------------------------------- (separator) ----------------------------------
+
+== Dependency
+github.com/verrazzano/cluster-api/hack/tools
+
+== License Type
+SPDX:Apache-2.0
+
+== Copyright
+Copyright 2014 The Kubernetes Authors.
+Copyright 2017 The Kubernetes Authors.
+Copyright 2018 The Kubernetes Authors.
+Copyright 2019 The Kubernetes Authors.
+Copyright 2020 The Kubernetes Authors.
+Copyright 2021 The Kubernetes Authors.
+Copyright 2022 The Kubernetes Authors.
+Copyright 2023 The Kubernetes Authors.
 
 --------------------------------- (separator) ----------------------------------
 
@@ -2314,7 +2324,9 @@ Copyright 2017 The Go Authors. All rights reserved.
 Copyright 2018 The Go Authors. All rights reserved.
 Copyright 2019 The Go Authors. All rights reserved.
 Copyright 2020 The Go Authors. All rights reserved.
+Copyright 2021 The Go Authors. All rights reserved.
 Copyright 2022 The Go Authors. All rights reserved.
+Copyright 2023 The Go Authors. All rights reserved.
 
 == Patents
 Additional IP Rights Grant (Patents)
@@ -2731,6 +2743,7 @@ Copyright 2021 Google LLC
 Copyright 2021 Google LLC.
 Copyright 2021 The Grafeas Authors. All rights reserved.
 Copyright 2022 Google LLC
+Copyright 2023 Google LLC
 
 --------------------------------- (separator) ----------------------------------
 
@@ -2755,6 +2768,7 @@ Copyright 2020 The gRPC Authors
 Copyright 2020 gRPC authors.
 Copyright 2021 gRPC authors.
 Copyright 2022 gRPC authors.
+Copyright 2023 gRPC authors.
 
 == Notices
 Copyright 2014 gRPC authors.
@@ -2789,6 +2803,8 @@ Copyright 2019 The Go Authors. All rights reserved.
 Copyright 2019 The Go Authors. All rights reserved.",
 Copyright 2020 The Go Authors. All rights reserved.
 Copyright 2021 The Go Authors. All rights reserved.
+Copyright 2022 The Go Authors. All rights reserved.
+Copyright 2023 The Go Authors. All rights reserved.
 
 == Patents
 Additional IP Rights Grant (Patents)
@@ -2875,8 +2891,8 @@ limitations under the License.
 gopkg.in/yaml.v3
 
 == License Type
-
-
+=== MIT-3c91c172
+=== Apache-2.0
 
 This project is covered by two different licenses: MIT and Apache.
 
@@ -3186,24 +3202,6 @@ Copyright 2022 The Kubernetes Authors.
 --------------------------------- (separator) ----------------------------------
 
 == Dependency
-sigs.k8s.io/cluster-api/hack/tools
-
-== License Type
-SPDX:Apache-2.0
-
-== Copyright
-Copyright 2014 The Kubernetes Authors.
-Copyright 2017 The Kubernetes Authors.
-Copyright 2018 The Kubernetes Authors.
-Copyright 2019 The Kubernetes Authors.
-Copyright 2020 The Kubernetes Authors.
-Copyright 2021 The Kubernetes Authors.
-Copyright 2022 The Kubernetes Authors.
-Copyright 2023 The Kubernetes Authors.
-
---------------------------------- (separator) ----------------------------------
-
-== Dependency
 sigs.k8s.io/cluster-api/test
 
 == License Type
@@ -3259,8 +3257,8 @@ Copyright 2022 The Kubernetes Authors.
 sigs.k8s.io/json
 
 == License Type
-
-
+=== BSD-3-Clause--modified-by-Google-545d3f23
+=== Apache-2.0
 Files other than internal/golang/* licensed under:
 
 
@@ -3587,8 +3585,8 @@ Copyright 2020 The Kubernetes Authors.
 sigs.k8s.io/yaml
 
 == License Type
-
-
+=== MIT-0ceb9ff3
+=== BSD-3-Clause--modified-by-Google
 The MIT License (MIT)
 
 Copyright (c) 2014 Sam Ghods
