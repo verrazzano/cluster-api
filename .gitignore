@@ -90,3 +90,6 @@ tmp
 
 # Development container configurations (https://containers.dev/)
 .devcontainer
+
+# Build artifacts
+linux_amd64/
