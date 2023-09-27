@@ -68,10 +68,13 @@ version::get_version_vars() {
         #    GIT_MAJOR=${BASH_REMATCH[1]}
         #    GIT_MINOR=${BASH_REMATCH[2]}
         #fi
-        if [[ "${GIT_VERSION}" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+        if [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+) ]]; then
             GIT_MAJOR=${BASH_REMATCH[1]}
             GIT_MINOR=${BASH_REMATCH[2]}
         fi
+
+        echo "GIT_MAJOR is: $GIT_MAJOR"
+        echo "GIT_MINOR is: $GIT_MINOR"
 
         # If GIT_VERSION is not a valid Semantic Version, then refuse to build.
         if ! [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
