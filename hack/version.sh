@@ -62,19 +62,10 @@ version::get_version_vars() {
         # Try to match the "git describe" output to a regex to try to extract
         # the "major" and "minor" versions and whether this is the exact tagged
         # version or whether the tree is between two tagged versions.
-
-        # Workaround parsing of git version in our BFS pipeline
-        #if [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?([-].*)?([+].*)?$ ]]; then
-        #    GIT_MAJOR=${BASH_REMATCH[1]}
-        #    GIT_MINOR=${BASH_REMATCH[2]}
-        #fi
-        if [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+) ]]; then
+        if [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?([-].*)?([+].*)?$ ]]; then
             GIT_MAJOR=${BASH_REMATCH[1]}
             GIT_MINOR=${BASH_REMATCH[2]}
         fi
-
-        echo "GIT_MAJOR is: $GIT_MAJOR"
-        echo "GIT_MINOR is: $GIT_MINOR"
 
         # If GIT_VERSION is not a valid Semantic Version, then refuse to build.
         if ! [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
@@ -105,8 +96,8 @@ version::ldflags() {
     add_ldflag "buildDate" "$(date ${SOURCE_DATE_EPOCH:+"--date=@${SOURCE_DATE_EPOCH}"} -u +'%Y-%m-%dT%H:%M:%SZ')"
     add_ldflag "gitCommit" "${GIT_COMMIT}"
     add_ldflag "gitTreeState" "${GIT_TREE_STATE}"
-    add_ldflag "gitMajor" "${GIT_MAJOR}"
-    add_ldflag "gitMinor" "${GIT_MINOR}"
+#    add_ldflag "gitMajor" "${GIT_MAJOR}"
+#    add_ldflag "gitMinor" "${GIT_MINOR}"
     add_ldflag "gitVersion" "${GIT_VERSION}"
     add_ldflag "gitReleaseCommit" "${GIT_RELEASE_COMMIT}"
 
