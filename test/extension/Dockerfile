@@ -14,12 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ARG golang_image
+
 # Build the extension binary
 # Run this with docker build --build-arg builder_image=<golang:x.y.z>
 ARG builder_image
 
 # Build architecture
 ARG ARCH
+
+FROM ${golang_image} as custom_golang_image
 
 # Ignore Hadolint rule "Always tag the version of an image explicitly."
 # It's an invalid finding since the image is explicitly set in the Makefile.
@@ -32,6 +36,9 @@ WORKDIR /workspace
 ARG goproxy=https://proxy.golang.org
 # Run this with docker build --build-arg package=./controlplane/kubeadm or --build-arg package=./bootstrap/kubeadm
 ENV GOPROXY=$goproxy
+
+COPY --from=custom_golang_image /usr/lib/golang/ /usr/lib/golang/
+RUN ln -s /usr/lib/golang/bin/go /usr/bin/go
 
 # Copy the Go Modules manifests
 COPY go.mod go.mod

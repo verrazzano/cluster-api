@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ARG golang_image
+
 # Build the manager binary
 # Run this with docker build --build-arg builder_image=<golang:x.y.z>
 ARG builder_image
 
 # Build architecture
 ARG ARCH
+
+FROM ${golang_image} as custom_golang_image
 
 # Ignore Hadolint rule "Always tag the version of an image explicitly."
 # It's an invalid finding since the image is explicitly set in the Makefile.
@@ -31,10 +35,13 @@ ARG goproxy=https://proxy.golang.org
 # Run this with docker build --build-arg package=./controlplane/kubeadm or --build-arg package=./bootstrap/kubeadm
 ENV GOPROXY=$goproxy
 
+COPY --from=custom_golang_image /usr/lib/golang/ /usr/lib/golang/
+RUN ln -s /usr/lib/golang/bin/go /usr/bin/go
+
 RUN dnf install -y oracle-olcne-release-el8 oraclelinux-developer-release-el8 && \
     dnf config-manager --enable ol8_olcne16 ol8_developer && \
     dnf update -y && \
-    dnf install -y openssl-devel delve gcc go-toolset-1.19.6 && \
+    dnf install -y openssl-devel delve gcc && \
     go version
 
 RUN go env GOPATH
