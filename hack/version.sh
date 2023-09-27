@@ -62,7 +62,13 @@ version::get_version_vars() {
         # Try to match the "git describe" output to a regex to try to extract
         # the "major" and "minor" versions and whether this is the exact tagged
         # version or whether the tree is between two tagged versions.
-        if [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?([-].*)?([+].*)?$ ]]; then
+
+        # Workaround parsing of git version in our BFS pipeline
+        #if [[ "${GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?([-].*)?([+].*)?$ ]]; then
+        #    GIT_MAJOR=${BASH_REMATCH[1]}
+        #    GIT_MINOR=${BASH_REMATCH[2]}
+        #fi
+        if [[ "${GIT_VERSION}" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
             GIT_MAJOR=${BASH_REMATCH[1]}
             GIT_MINOR=${BASH_REMATCH[2]}
         fi
