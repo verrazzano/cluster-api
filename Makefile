@@ -1253,13 +1253,8 @@ go-version: ## Print the go version we use to compile our binaries and images
 ##@ cluster-api:
 
 .PHONY: cluster-api-builds
-cluster-api-builds: ## Build cluster API images and artifacts
-	rm -rf out bin
-	$(MAKE) docker-build
-	$(MAKE) docker-push
-	$(MAKE) release-manifests
+cluster-api-builds: clean docker-build docker-push release-manifests ## Build cluster API images and artifacts
 	make clusterctl
 	mkdir -p linux_$(ARCH)
 	cp bin/clusterctl linux_$(ARCH)
 	cp out/* linux_$(ARCH)
-
