@@ -205,6 +205,7 @@ CAPD_CONTROLLER_IMG ?= $(REGISTRY)/$(CAPD_IMAGE_NAME)
 CLUSTERCTL_MANIFEST_DIR := cmd/clusterctl/config
 CLUSTERCTL_IMAGE_NAME ?= clusterctl
 CLUSTERCTL_IMG ?= $(REGISTRY)/$(CLUSTERCTL_IMAGE_NAME)
+CLUSTERCTL_CONTAINER ?= extract-clusterctl
 
 # test extension
 TEST_EXTENSION_IMAGE_NAME ?= test-extension
@@ -831,6 +832,10 @@ USER_FORK := $(shell git config --get remote.origin.url | cut -d: -f2 | cut -d/ 
 endif
 IMAGE_REVIEWERS ?= $(shell ./hack/get-project-maintainers.sh)
 
+.PHONY: $(BIN_DIR)
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)/
+
 .PHONY: $(RELEASE_DIR)
 $(RELEASE_DIR):
 	mkdir -p $(RELEASE_DIR)/
@@ -1066,6 +1071,17 @@ set-manifest-image:
 	$(info Updating kustomize image patch file for manager resource)
 	sed -i'' -e 's@image: .*@image: '"${MANIFEST_IMG}:$(MANIFEST_TAG)"'@' $(TARGET_RESOURCE)
 
+.PHONY: docker-remove-clusterctl-container
+docker-remove-clusterctl-container: ## Remove the clusterctl container
+	docker rm --force ${CLUSTERCTL_CONTAINER} || true
+
+.PHONY: docker-extract-clusterctl
+docker-extract-clusterctl: $(BIN_DIR) docker-remove-clusterctl-container ## Extract the clusterctl binary from image
+	docker run --name ${CLUSTERCTL_CONTAINER} $(CLUSTERCTL_IMG):${DOCKER_IMAGE_TAG}
+	docker cp ${CLUSTERCTL_CONTAINER}:clusterctl $(BIN_DIR)/
+	$(BIN_DIR)/clusterctl version
+	docker rm ${CLUSTERCTL_CONTAINER}
+
 ## --------------------------------------
 ## Cleanup / Verification
 ## --------------------------------------
@@ -1254,7 +1270,7 @@ go-version: ## Print the go version we use to compile our binaries and images
 
 .PHONY: cluster-api-builds
 cluster-api-builds: clean docker-build docker-push release-manifests ## Build cluster API images and artifacts
-	make clusterctl
+	make docker-extract-clusterctl
 	mkdir -p linux_$(ARCH)
-	cp bin/clusterctl linux_$(ARCH)
+	cp $(BIN_DIR)/clusterctl linux_$(ARCH)
 	cp out/* linux_$(ARCH)
