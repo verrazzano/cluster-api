@@ -25,7 +25,7 @@ SHELL:=/usr/bin/env bash
 #
 GO_CONTAINER_IMAGE ?= ghcr.io/oracle/oraclelinux:8
 
-GOLANG_IMAGE ?= ghcr.io/verrazzano/golang:v1.20.8
+GOLANG_IMAGE ?= ghcr.io/verrazzano/golang:v1.20.10
 
 # Use GOPROXY environment variable if set
 GOPROXY := $(shell go env GOPROXY)
