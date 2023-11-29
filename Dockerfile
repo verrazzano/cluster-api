@@ -67,13 +67,15 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} \
 # Production image
 
 FROM $FINAL_IMAGE
-WORKDIR /
-COPY --from=builder /workspace/manager .
 
 # Copy users and groups
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
-COPY --from=builder /home/ocne /home/ocne
+
+WORKDIR /
+
+COPY --from=builder --chown=1000:ocne --chmod=500 /workspace/manager .
+COPY --from=builder --chown 1000:ocne /home/ocne /home/ocne
 COPY --from=builder /ocne /ocne
 
 # Use uid of nonroot user (65532) because kubernetes expects numeric user when applying pod security policies
