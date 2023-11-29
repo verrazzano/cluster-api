@@ -74,7 +74,7 @@ COPY --from=builder /etc/group /etc/group
 
 WORKDIR /
 
-COPY --from=builder --chown=1000:ocne --chmod=500 /workspace/manager .
+COPY --from=builder --chown=1000:ocne /workspace/manager .
 COPY --from=builder --chown=1000:ocne /home/ocne /home/ocne
 COPY --from=builder --chown=1000:ocne /ocne /ocne
 
