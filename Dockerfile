@@ -75,8 +75,8 @@ COPY --from=builder /etc/group /etc/group
 WORKDIR /
 
 COPY --from=builder --chown=1000:ocne --chmod=500 /workspace/manager .
-COPY --from=builder --chown 1000:ocne /home/ocne /home/ocne
-COPY --from=builder /ocne /ocne
+COPY --from=builder --chown=1000:ocne /home/ocne /home/ocne
+COPY --from=builder --chown=1000:ocne /ocne /ocne
 
 # Use uid of nonroot user (65532) because kubernetes expects numeric user when applying pod security policies
 COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
