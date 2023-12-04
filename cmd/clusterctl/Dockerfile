@@ -16,6 +16,9 @@
 # Run this with docker build --build-arg builder_image=<golang:x.y.z>
 ARG builder_image
 
+# Final production base image
+ARG FINAL_IMAGE=ghcr.io/verrazzano/ol8-static:v0.0.1-20231102152128-e7afc807
+
 # Build architecture
 ARG ARCH
 
@@ -59,12 +62,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} \
     -o clusterctl ${package}
 
 # Production image
-FROM ghcr.io/oracle/oraclelinux:8-slim
-RUN microdnf update \
-    && microdnf clean all
+FROM $FINAL_IMAGE
 WORKDIR /
 COPY --from=builder /workspace/clusterctl .
-RUN mkdir -p /license
 COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 # Use uid of nonroot user (65532) because kubernetes expects numeric user when applying pod security policies
 USER 65532

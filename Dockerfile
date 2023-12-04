@@ -19,6 +19,9 @@ ARG builder_image
 # Build architecture
 ARG ARCH
 
+# Final production base image
+ARG FINAL_IMAGE=ghcr.io/verrazzano/ol8-static:v0.0.1-20231102152128-e7afc807
+
 # Ignore Hadolint rule "Always tag the version of an image explicitly."
 # It's an invalid finding since the image is explicitly set in the Makefile.
 # https://github.com/hadolint/hadolint/wiki/DL3006
@@ -54,21 +57,28 @@ ARG ldflags
 # Do not force rebuild of up-to-date packages (do not use -a) and use the compiler cache folder
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} \
     go build -trimpath -ldflags "${ldflags} -extldflags '-static'" \
-    -o manager ${package}
-
-# Production image
-FROM ghcr.io/oracle/oraclelinux:8-slim
-RUN microdnf update \
-    && microdnf clean all
-WORKDIR /
-COPY --from=builder /workspace/manager .
-# Use uid of nonroot user (65532) because kubernetes expects numeric user when applying pod security policies
-RUN groupadd -r ocne \
+    -o manager ${package} \
+    && groupadd -r ocne \
     && useradd --no-log-init -r -m -d /ocne -g ocne -u 1000 ocne \
     && mkdir -p /home/ocne \
-    && chown -R 1000:ocne /manager /home/ocne \
-    && chmod 500 /manager
-RUN mkdir -p /license
+    && chown -R 1000:ocne /workspace/manager /home/ocne \
+    && chmod 500 /workspace/manager
+
+# Production image
+
+FROM $FINAL_IMAGE
+
+# Copy users and groups
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
+
+WORKDIR /
+
+COPY --from=builder --chown=1000:ocne /workspace/manager .
+COPY --from=builder --chown=1000:ocne /home/ocne /home/ocne
+COPY --from=builder --chown=1000:ocne /ocne /ocne
+
+# Use uid of nonroot user (65532) because kubernetes expects numeric user when applying pod security policies
 COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 USER 1000
 ENTRYPOINT ["/manager"]
